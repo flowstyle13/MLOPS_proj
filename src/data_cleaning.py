@@ -38,9 +38,7 @@ def main():
         print(f"Error loading data: {e}")
         return
 
-    if raw_data.shape[1] == 1:  # Likely a delimiter issue
-        print("Error: Only one column detected. Check the delimiter or file format.")
-        return
+
 
     # Clean the data
     cleaned_data = clean_data(raw_data)
