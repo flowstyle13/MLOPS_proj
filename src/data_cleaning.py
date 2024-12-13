@@ -39,7 +39,7 @@ def main():
     # Load raw data
     try:
         test_data = pd.read_csv('data/processed/raw_data.csv', sep=',', encoding='utf-8', on_bad_lines='skip')
-        print(f"Raw data loaded successfully. Shapes: {train_data.shape}, {eval_data.shape}, {test_data.shape}")
+        print(f"Raw data loaded successfully. Shapes:{test_data.shape}")
     except Exception as e:
         print(f"Error loading data: {e}")
         return
@@ -48,7 +48,7 @@ def main():
     test_data = clean_data(test_data)
 
     # Save cleaned data
-    save_data(test_data, 'data/processed/cleaned_test_data.csv')
+    save_data(test_data, 'data/processed/cleaned_data.csv')
 
 if __name__ == "__main__":
     main()
