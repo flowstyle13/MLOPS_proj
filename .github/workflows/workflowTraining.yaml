@@ -85,7 +85,7 @@ jobs:
       - name: Track Updated Model
         run: |
           dvc add model/model_pipeline.pkl 
-          git add model_pipeline.pkl.dvc
+          git add model/model_pipeline.pkl.dvc
 
       # Step 15: Commit model changes
       - name: Commit Model Changes
