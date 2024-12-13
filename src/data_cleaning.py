@@ -1,9 +1,10 @@
 import pandas as pd
-import numpy as np
+from sklearn.preprocessing import LabelEncoder
 
 def clean_data(df):
     """
-    Clean the dataset by performing operations like handling missing values and basic feature engineering.
+    Clean the dataset by handling missing values, combining relevant columns,
+    and encoding labels.
     Args:
         df (pd.DataFrame): The input DataFrame to clean.
     Returns:
@@ -12,45 +13,42 @@ def clean_data(df):
     if df.empty:
         print("Error: DataFrame is empty.")
         return None
+    
+    # Fill missing values for 'title' and 'text' columns with empty strings
+    df['title'].fillna('', inplace=True)
+    df['text'].fillna('', inplace=True)
 
-    # Example cleaning steps
-    df.fillna(method='ffill', inplace=True)  # Forward fill missing values
-    df.fillna(method='bfill', inplace=True)  # Backward fill missing values
+    # Combine title and text into one column 'content'
+    df['content'] = df['title'] + " " + df['text']
 
+    # Encode the labels (assuming 'label' column exists)
+    label_encoder = LabelEncoder()
+    df['label'] = label_encoder.fit_transform(df['label'])
+
+    return df
+
+def save_data(df, file_path):
+    """Save the cleaned DataFrame to a CSV file."""
+    try:
+        df.to_csv(file_path, index=False)
+        print(f"Cleaned data saved to {file_path}")
+    except Exception as e:
+        print(f"Error saving cleaned data: {e}")
 
 def main():
+    # Load raw data
     try:
-        raw_data = pd.read_csv(
-            'data/processed/raw_data.csv',
-            sep=';',  # Adjust delimiter if needed
-            on_bad_lines='skip',
-            encoding='utf-8'
-        )
-        print(f"Raw data loaded successfully. Shape: {raw_data.shape}")
-        print(raw_data.head())
-    except pd.errors.ParserError as e:
-        print(f"Parser error: {e}")
-        return
-    except FileNotFoundError as e:
-        print(f"File not found: {e}")
-        return
+        test_data = pd.read_csv('data/processed/raw_data.csv', sep=',', encoding='utf-8', on_bad_lines='skip')
+        print(f"Raw data loaded successfully. Shapes: {train_data.shape}, {eval_data.shape}, {test_data.shape}")
     except Exception as e:
         print(f"Error loading data: {e}")
         return
 
-
-
     # Clean the data
-    cleaned_data = clean_data(raw_data)
-    if cleaned_data is None:
-        print("Error: clean_data returned None.")
-        return
+    test_data = clean_data(test_data)
 
-    try:
-        cleaned_data.to_csv('data/processed/cleaned_data.csv', index=False)
-        print("Cleaned data saved to 'data/processed/cleaned_data.csv'")
-    except Exception as e:
-        print(f"Error saving cleaned data: {e}")
+    # Save cleaned data
+    save_data(test_data, 'data/processed/cleaned_test_data.csv')
 
 if __name__ == "__main__":
     main()
