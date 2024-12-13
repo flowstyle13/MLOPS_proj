@@ -15,13 +15,7 @@ def clean_data(df):
     
     # Handling missing values
     df.fillna(method='ffill', inplace=True)  # Forward fill missing values
-    
-    # Feature engineering (if needed)
-    # For instance, let's assume we want to add a new column:
-    if 'price' in df.columns:
-        df['price_log'] = np.log1p(df['price'])  # Log transformation for price
-    
-    return df
+   
 
 def main():
     # Load the raw data (assuming it's already loaded and saved as raw_data.csv)
