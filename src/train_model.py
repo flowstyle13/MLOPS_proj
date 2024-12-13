@@ -1,60 +1,64 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
-import joblib
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.pipeline import Pipeline
 
-def train_model(data):
+def load_data(file_path):
+    """Load the cleaned data from a CSV file."""
+    try:
+        df = pd.read_csv(file_path, sep=',', encoding='utf-8')
+        print(f"Data loaded successfully from {file_path}. Shape: {df.shape}")
+        return df
+    except Exception as e:
+        print(f"Error loading data from {file_path}: {e}")
+        return None
+
+def train_and_evaluate_model(train_df):
     """
-    Train a logistic regression model with the cleaned data.
-    
+    Train a machine learning model using Logistic Regression and evaluate its performance.
     Args:
-        data (pd.DataFrame): Cleaned data with 'content' (text) and 'label' (target) columns.
-    
+        train_df (pd.DataFrame): The training dataset.
     Returns:
-        sklearn.pipeline.Pipeline: Trained model pipeline.
+        None
     """
-    # Prepare features and target variable
-    X = data['content']
-    y = data['label']
-    
-    # Create a TF-IDF vectorizer and a logistic regression model pipeline
-    pipeline = Pipeline([
-        ('tfidf', TfidfVectorizer(max_features=5000, ngram_range=(1, 2), stop_words='english')),
+    # Prepare features and labels for training
+    X_train = train_df['content']
+    y_train = train_df['label']
+
+    # Step 4: Vectorization using TF-IDF and Model Pipeline
+    tfidf_vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2), stop_words='english')
+
+    # Create a pipeline with TF-IDF and Logistic Regression
+    model_pipeline = Pipeline([
+        ('tfidf', tfidf_vectorizer),
         ('clf', LogisticRegression(max_iter=1000))
     ])
-    
-    # Train the model
-    pipeline.fit(X, y)
-    
-    return pipeline
+
+    # Step 5: Model Training
+    model_pipeline.fit(X_train, y_train)
+
+    # Step 6: Evaluation on the Training Set
+    y_pred_train = model_pipeline.predict(X_train)
+    accuracy = accuracy_score(y_train, y_pred_train)
+    report = classification_report(y_train, y_pred_train)
+    conf_matrix = confusion_matrix(y_train, y_pred_train)
+
+    print("Training Accuracy:", accuracy)
+    print("\nClassification Report:\n", report)
+    print("\nConfusion Matrix:\n", conf_matrix)
 
 def main():
     # Load cleaned data
-    try:
-        cleaned_data = pd.read_csv('data/processed/cleaned_data.csv', sep=';')
-        print(f"Cleaned data loaded successfully. Shape: {cleaned_data.shape}")
-        
-        # Train the model
-        model = train_model(cleaned_data)
-        print("Model trained successfully.")
-        
-        # Evaluate the model (optional)
-        X_train, X_val, y_train, y_val = train_test_split(
-            cleaned_data['content'], cleaned_data['label'], test_size=0.2, random_state=42
-        )
-        y_pred_val = model.predict(X_val)
-        print(f"Validation Accuracy: {accuracy_score(y_val, y_pred_val)}")
-        print(f"Classification Report:\n{classification_report(y_val, y_pred_val)}")
-        
-        # Save the model to disk
-        joblib.dump(model, 'models/model_pipeline.pkl')
-        print("Model saved to 'models/model_pipeline.pkl'")
-    
-    except Exception as e:
-        print(f"Error training model: {e}")
+    train_data = load_data('data/processed/cleaned_train_data.csv')
+
+    if train_data is None:
+        print("Error loading the data. Exiting.")
+        return
+
+    # Train and evaluate model using only the training data
+    train_and_evaluate_model(train_data)
 
 if __name__ == "__main__":
     main()
