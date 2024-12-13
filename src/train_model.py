@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.pipeline import Pipeline
+import pickle  # Using pickle for saving the model
 
 def load_data(file_path):
     """Load the cleaned data from a CSV file."""
@@ -21,7 +22,7 @@ def train_and_evaluate_model(train_df):
     Args:
         train_df (pd.DataFrame): The training dataset.
     Returns:
-        None
+        model_pipeline: The trained model pipeline.
     """
     # Prepare features and labels for training
     X_train = train_df['content']
@@ -49,6 +50,17 @@ def train_and_evaluate_model(train_df):
     print("\nClassification Report:\n", report)
     print("\nConfusion Matrix:\n", conf_matrix)
 
+    return model_pipeline
+
+def save_model(model, filename):
+    """Save the trained model to a .pkl file."""
+    try:
+        with open(filename, 'wb') as file:
+            pickle.dump(model, file)
+        print(f"Model saved successfully to {filename}")
+    except Exception as e:
+        print(f"Error saving the model: {e}")
+
 def main():
     # Load cleaned data
     train_data = load_data('data/processed/cleaned_data.csv')
@@ -58,7 +70,10 @@ def main():
         return
 
     # Train and evaluate model using only the training data
-    train_and_evaluate_model(train_data)
+    model = train_and_evaluate_model(train_data)
+
+    # Save the trained model
+    save_model(model, 'model/model_pipeline.pkl')
 
 if __name__ == "__main__":
     main()
