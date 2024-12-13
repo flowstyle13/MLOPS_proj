@@ -18,7 +18,7 @@ def load_data(file_path):
 
 def main():
     # Specify the file path
-    input_file = 'data/raw/data.csv'
+    input_file = 'data/train.csv'
     
     # Load the dataset
     try:
