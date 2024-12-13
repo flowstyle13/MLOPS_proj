@@ -1,10 +1,11 @@
 import pandas as pd
+import mlflow
+import mlflow.sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.pipeline import Pipeline
-import pickle  # Using pickle for saving the model
 
 def load_data(file_path):
     """Load the cleaned data from a CSV file."""
@@ -50,16 +51,7 @@ def train_and_evaluate_model(train_df):
     print("\nClassification Report:\n", report)
     print("\nConfusion Matrix:\n", conf_matrix)
 
-    return model_pipeline
-
-def save_model(model, filename):
-    """Save the trained model to a .pkl file."""
-    try:
-        with open(filename, 'wb') as file:
-            pickle.dump(model, file)
-        print(f"Model saved successfully to {filename}")
-    except Exception as e:
-        print(f"Error saving the model: {e}")
+    return model_pipeline, accuracy, report, conf_matrix
 
 def main():
     # Load cleaned data
@@ -69,11 +61,35 @@ def main():
         print("Error loading the data. Exiting.")
         return
 
-    # Train and evaluate model using only the training data
-    model = train_and_evaluate_model(train_data)
+    # Start MLflow run
+    with mlflow.start_run():
 
-    # Save the trained model
-    save_model(model, 'model/model_pipeline.pkl')
+        # Log hyperparameters (if any)
+        mlflow.log_param("max_features", 5000)
+        mlflow.log_param("ngram_range", "(1, 2)")
+        mlflow.log_param("stop_words", "english")
+        mlflow.log_param("model_type", "LogisticRegression")
+        mlflow.log_param("max_iter", 1000)
+
+        # Train and evaluate model using only the training data
+        model, accuracy, report, conf_matrix = train_and_evaluate_model(train_data)
+
+        # Log metrics
+        mlflow.log_metric("accuracy", accuracy)
+        
+        # Log the classification report and confusion matrix as artifacts
+        mlflow.log_artifact("classification_report.txt", "classification_report.txt")
+        mlflow.log_artifact("confusion_matrix.txt", "confusion_matrix.txt")
+
+        # Save the classification report and confusion matrix to files
+        with open("classification_report.txt", "w") as f:
+            f.write(report)
+
+        with open("confusion_matrix.txt", "w") as f:
+            f.write(str(conf_matrix))
+
+        # Log the trained model to MLflow
+        mlflow.sklearn.log_model(model, "model")
 
 if __name__ == "__main__":
     main()
