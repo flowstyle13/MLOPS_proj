@@ -51,7 +51,7 @@ def train_and_evaluate_model(train_df):
 
 def main():
     # Load cleaned data
-    train_data = load_data('data/processed/cleaned_train_data.csv')
+    train_data = load_data('data/processed/cleaned_data.csv')
 
     if train_data is None:
         print("Error loading the data. Exiting.")
