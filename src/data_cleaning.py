@@ -15,11 +15,7 @@ def clean_data(df):
     df.fillna(method='ffill', inplace=True)  # Forward fill missing values
     df.fillna(method='bfill', inplace=True)  # Backward fill missing values (optional)
     
-    # Feature engineering
-    if 'price' in df.columns:
-        df['price_log'] = np.log1p(df['price'].replace(0, np.nan))  # Avoid log(0) errors
-    
-    return df
+
 
 def main():
     # Load the raw data
@@ -41,10 +37,6 @@ def main():
         print(f"Error loading data: {e}")
         return
 
-    # Validate the presence of critical columns
-    if 'price' not in raw_data.columns:
-        print("Error: The required column 'price' is missing from the dataset.")
-        return
     
     # Clean the data
     try:
