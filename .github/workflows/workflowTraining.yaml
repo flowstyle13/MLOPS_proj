@@ -70,7 +70,7 @@ jobs:
       # Step 11: Commit dataset changes
       - name: Commit Dataset Changes
         run: |
-          git add . "Upload training dataset with new data"
+          git add .
           git commit -m "Update training dataset with new data"
 
       # Step 12: Push dataset to DVC remote
