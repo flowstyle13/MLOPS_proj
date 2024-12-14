@@ -5,7 +5,7 @@ def clean_data(df):
     """
     Clean the dataset by handling missing values, combining relevant columns,
     and encoding labels.
-    Args:
+    Args: 
         df (pd.DataFrame): The input DataFrame to clean.
     Returns:
         pd.DataFrame: Cleaned DataFrame.
