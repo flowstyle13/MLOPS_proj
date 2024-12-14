@@ -101,5 +101,5 @@ jobs:
         if: success()
         run: |
           curl -X POST https://api.github.com/repos/flowstyle13/MLOPS_proj/actions/workflows/.github/workflows/continuousDeployment.yaml/dispatches \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secretsGitToken }}" \
             -d '{"ref":"main"}'
