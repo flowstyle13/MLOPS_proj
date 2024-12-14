@@ -94,12 +94,3 @@ jobs:
       # Step 16: Push model to DVC remote
       - name: Push Model to Remote
         run: dvc push
-
-
-           # Final Step: Trigger Deployment Workflow
-      - name: Trigger Deployment Workflow
-        if: success()
-        run: |
-          curl -X POST https://api.github.com/repos/flowstyle13/MLOPS_proj/actions/workflows/.github/workflows/continuousDeployment.yaml/dispatches \
-          -H "Authorization: Bearer ${{ secretsGitToken }}" \
-          -d '{"ref":"main"}'
