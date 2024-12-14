@@ -1,0 +1,55 @@
+name: Continuous Deployment
+
+on:
+  workflow_run:
+    workflows:
+      - Continuous Training
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dvc[all]
+          pip install -r requirements.txt
+
+      # Step 4: Pull the latest model from DVC remote
+      - name: Pull Latest Model
+        run: |
+          dvc pull model/model_pipeline.pkl
+
+      # Step 5: Deploy model to the serving platform
+      - name: Deploy Model
+        run: |
+          # Example: Deploy to FastAPI
+          python src/deploy_model.py
+
+      # Step 6: Test Deployment (Optional)
+      - name: Run Deployment Tests
+        run: |
+          # Example: Test API endpoints
+          pytest tests/deployment_tests.py
+
+      # Step 7: Notify on successful deployment (Optional)
+      - name: Notify Deployment Success
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          text: "✅ Model deployed successfully!"
